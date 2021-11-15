@@ -1,0 +1,5 @@
+{
+  "python.analysis.extraPaths": [
+    "./xmind-sdk-python/build/lib"
+  ]
+}
