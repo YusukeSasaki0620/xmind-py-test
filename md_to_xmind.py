@@ -2,6 +2,7 @@
 
 import glob,os,codecs,re
 import xmind
+from xmind.core.workbook import WorkbookDocument
 
 input_dir = "output_files"
 os.chdir(input_dir)
@@ -25,15 +26,18 @@ for file_name in input_file_names:
   input_file_path = input_dir + '/' + file_name
   output_file_path = output_dir + '/' + os.path.splitext(file_name)[0] + '.xmind'
   with codecs.open(input_file_path, 'r','utf-8') as f:
-    w = xmind.load(output_file_path)
+    w = WorkbookDocument()
+
     curr_line = f.readline()
     pre_line = ''
     while curr_line:
       if re.match('# ', curr_line):
         print('sheet:' + re.sub('^# ', '', curr_line))
         sheet = w.createSheet()
-        # TODO: 日本語が書き込めない
-        # sheet.setTitle(re.sub('^# ', '', curr_line))
+        sheet.setTitle(re.sub('^# ', '', curr_line).encode('utf8'))
+        rt = sheet.getRootTopic()
+        rt.setTitle('fugafuga')
+        w.addSheet(sheet)
       elif re.match("(  ){0,}- ", curr_line):
         print('topic:' + curr_line)
       else:
@@ -41,6 +45,9 @@ for file_name in input_file_names:
       pre_line = curr_line
       curr_line = f.readline()
 
-    xmind.save(w)
+    # NOTE: 問答無用で作成される初期シートを削除して帳尻を合わせる
+    w.removeSheet(w.getPrimarySheet())
+
+    xmind.save(w, output_file_path)
 
 
