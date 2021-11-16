@@ -8,3 +8,6 @@ python sample.py
 
 📝
 pipだとうまく行かないので、、、
+
+📝
+Themeいじる機能がないのできついかも
