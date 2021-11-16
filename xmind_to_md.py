@@ -27,15 +27,13 @@ if __name__ == '__main__':
 
   print("input_dir:" + input_dir)
   print("output_dir:" + output_dir)
-  os.chdir(input_dir)
-  input_file_names = glob.glob("*.xmind")
-  os.chdir("../")
+  input_file_paths = glob.glob(input_dir + '/' + "*.xmind")
 
-  print(input_file_names)
+  print(input_file_paths)
 
-  for file_name in input_file_names:
-    input_file_path = input_dir + '/' + file_name
-    output_file_path = output_dir + '/' + os.path.splitext(file_name)[0] + '.md'
+  for input_file_path in input_file_paths:
+    file_name = os.path.splitext(os.path.basename(input_file_path))[0]
+    output_file_path = output_dir + '/' + file_name + '.md'
     with codecs.open(output_file_path, 'w', 'utf-8') as f:
       workbook = xmind.load(input_file_path)
       sheets = workbook.getSheets()
