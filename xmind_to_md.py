@@ -1,5 +1,8 @@
+#-*- coding: utf-8 -*-
+
 import glob,os,codecs
 import xmind
+
 input_dir = "input_files"
 os.chdir(input_dir)
 input_file_names = glob.glob("*.xmind")
@@ -8,6 +11,9 @@ output_dir = 'output_files'
 LF = "\n"
 TAB = "  "
 LIST = "- "
+# NOTE: xmind書き込みの際にメソッドが別れているので区別できるように
+SHEET = "# "
+ROOTTOPIK = "## "
 
 def sub_topic_recursive_processing(output_file , sub_topic, index = 0):
   output_file.write(TAB * index + LIST + sub_topic.getTitle() + LF)
@@ -25,7 +31,10 @@ for file_name in input_file_names:
     workbook = xmind.load(input_file_path)
     sheets = workbook.getSheets()
     for sheet in sheets:
-      f.write('# ' + sheet.getTitle() + LF)
+      f.write(SHEET + sheet.getTitle() + LF)
       rt = sheet.getRootTopic()
-      sub_topic_recursive_processing(f, rt)
+      f.write(ROOTTOPIK + rt.getTitle() + LF)
+      sub_topics = rt.getSubTopics() or []
+      for sub_topic in sub_topics:
+        sub_topic_recursive_processing(f, sub_topic)
 
