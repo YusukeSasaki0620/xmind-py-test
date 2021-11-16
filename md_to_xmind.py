@@ -31,6 +31,7 @@ for file_name in input_file_names:
     curr_sheet = None
     curr_topic = None
     curr_topic_prefix = None
+    tmp_cnt = 0
     while curr_line:
       match = re.match(SHEET, curr_line) or re.match(ROOTTOPIK, curr_line) or re.match(LISTREG, curr_line)
       if match:
@@ -48,13 +49,16 @@ for file_name in input_file_names:
           rt.setTitle(str_data)
           curr_topic = rt
           curr_topic_prefix = prefix
+          tmp_cnt = 0
         else:
           # TODO: いい感じに階層戻るやつをかんがえる
           print('topic:' + str_data)
           tp=TopicElement()
           tp.setTitle(str_data)
-          curr_topic.addSubTopic(tp)
-          print("index:" + str(tp.getIndex()))
+          if tmp_cnt < 100:
+            curr_topic.addSubTopic(tp)
+            print("index:" + str(tp.getIndex()))
+            tmp_cnt = tp.getIndex()
           # curr_topic = tp
           # curr_topic_prefix = prefix
       else:
