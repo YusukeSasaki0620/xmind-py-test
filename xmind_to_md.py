@@ -12,8 +12,11 @@ LIST = "- "
 SHEET = "# "
 ROOTTOPIK = "## "
 
+def escape_crlf(str):
+  return str.replace( '\n' , '\\n').replace('\r', '')
+
 def sub_topic_recursive_processing(output_file , sub_topic, index = 0):
-  output_file.write(TAB * index + LIST + sub_topic.getTitle() + LF)
+  output_file.write(TAB * index + LIST + escape_crlf(sub_topic.getTitle()) + LF)
   sub_topics = sub_topic.getSubTopics() or []
   for sub_topic in sub_topics:
     sub_topic_recursive_processing(output_file, sub_topic, index+1)
@@ -38,9 +41,9 @@ if __name__ == '__main__':
       workbook = xmind.load(input_file_path)
       sheets = workbook.getSheets()
       for sheet in sheets:
-        f.write(SHEET + sheet.getTitle() + LF)
+        f.write(SHEET + escape_crlf(sheet.getTitle()) + LF)
         rt = sheet.getRootTopic()
-        f.write(ROOTTOPIK + rt.getTitle() + LF)
+        f.write(ROOTTOPIK + escape_crlf(rt.getTitle()) + LF)
         sub_topics = rt.getSubTopics() or []
         for sub_topic in sub_topics:
           sub_topic_recursive_processing(f, sub_topic)
