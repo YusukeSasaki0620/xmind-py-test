@@ -20,6 +20,9 @@ ROOTTOPIK = "## "
 LISTREG = "(  ){0,}- "
 
 
+def unescape_lf(str):
+  return str.replace( '\\n' , '\n')
+
 if __name__ == '__main__':
   args = sys.argv
   for index, arg in enumerate(args):
@@ -52,6 +55,7 @@ if __name__ == '__main__':
         if match:
           prefix = match.group()
           str_data = re.sub('^' + prefix, '', curr_line).replace(LF,'').encode('utf8')
+          str_data = unescape_lf(str_data)
           if prefix == SHEET:
             sheet = w.createSheet()
             sheet.setTitle(str_data)
