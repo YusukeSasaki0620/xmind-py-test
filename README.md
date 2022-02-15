@@ -1,11 +1,27 @@
+### setup
+
+
 ```sh
-git clone https://github.com/xmindltd/xmind-sdk-python.git
-cd xmind-sdk-python
-python xmind-sdk-python/setup.py install
-cd ..
-python sample.py
+./setup.sh
 ```
 
+### xmind to md
+```sh
+python xmind_to_md.py [input_dir] [output_dir]
+```
+
+input_dir: 未指定デフォルト `./input_dir`
+output_dir: 未指定デフォルト `./output_dir`
+
+### md to xmind
+```
+python md_to_xmind.py [input_dir] [output_dir]
+```
+
+input_dir: 未指定デフォルト `./output_dir`
+output_dir: 未指定デフォルト `./tmp`
+
+### memo
 📝
 pipだとうまく行かないので、、、
 pipにしたい、、、
