@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 
-import glob,os,codecs,sys
+import glob,os,sys
 import xmind
 import openpyxl
 from openpyxl.styles import PatternFill
@@ -49,6 +49,8 @@ if __name__ == '__main__':
     for default_sheet in wb.worksheets:
       wb.remove(default_sheet)
 
+    print("doing: " + input_file_path)
+
     # xmindファイル読み込み
     workbook = xmind.load(input_file_path)
     sheets = workbook.getSheets()
@@ -56,6 +58,7 @@ if __name__ == '__main__':
       # xmindシートごとに処理
       # エクセルシート新規作成
       newSheet = wb.create_sheet(title=sheet.getTitle())
+      print("start_in_sheet: " + newSheet.title)
       # 固定出力：ルートトピックは最上端
       rt = sheet.getRootTopic()
       newSheet.cell(1,1).value = rt.getTitle()
@@ -69,14 +72,17 @@ if __name__ == '__main__':
         current_row, max_column_num = sub_topic_recursive_processing(newSheet, sub_topic, max_column_num, current_row)
 
       # カウント確認
-      newSheet.cell(current_row,max_column_num).value = 'カウント確認'
+      # newSheet.cell(current_row,max_column_num).value = 'カウント確認'
+      print("データサイズ [row: " + str(current_row) + ", col: " + str(max_column_num) + "]")
 
+      print("セル出力 :check:")
 
       # ２行目ラベル出力
       for i in range(max_column_num):
         tmp_row = i+1
         newSheet.cell(2, tmp_row).value = "Level " + str(tmp_row)
 
+      print("ラベル出力 :check:")
       # 整形処理① 末尾処理
       for row in newSheet.iter_rows(3, current_row - 1, 1, max_column_num + 1):
         find_end = False
@@ -86,7 +92,24 @@ if __name__ == '__main__':
           if cell.fill == END_COLUM_LABEL:
             find_end = True
 
-
+      # 整形処理② 列結合
+      for col in newSheet.iter_cols(1, max_column_num, 3, current_row - 1):
+        start_cell = end_cell= col[0]
+        print("整形中：" + start_cell.coordinate)
+        for cell in col:
+          if cell == start_cell:
+            # 初回スキップ
+            continue
+          if not bool(cell.value):
+            # 空セルの間endを移動
+            end_cell = cell
+          else:
+            # 次のテキストが見つかったら直前までを結合
+            newSheet.merge_cells(start_cell.coordinate + ":" + end_cell.coordinate)
+            # 探索リセット
+            start_cell = end_cell = cell
+        # 終点処理
+        newSheet.merge_cells(start_cell.coordinate + ":" + end_cell.coordinate)
 
 
     # 上書き保存
