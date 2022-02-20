@@ -93,21 +93,35 @@ if __name__ == '__main__':
             find_end = True
 
       # 整形処理② 列結合
-      for col in newSheet.iter_cols(1, max_column_num, 3, current_row - 1):
+      # 先頭行はデータが有ったほうが都合が良いのでラベルから開始
+      for col in newSheet.iter_cols(1, max_column_num, 2, current_row - 1):
         start_cell = end_cell= col[0]
+        in_end_column_label_cell = False
         print("整形中：" + start_cell.coordinate)
         for cell in col:
           if cell == start_cell:
             # 初回スキップ
             continue
-          if not bool(cell.value):
-            # 空セルの間endを移動
-            end_cell = cell
+
+          # 通常探索
+          if not in_end_column_label_cell:
+            if cell.fill == END_COLUM_LABEL or bool(cell.value):
+              # 末尾無効データまたは次のテキストにあたったら直前までを結合
+              newSheet.merge_cells(start_cell.coordinate + ":" + end_cell.coordinate)
+              start_cell = end_cell = cell
+              if cell.fill == END_COLUM_LABEL:
+                # 無効データに当たったなら無効セル探索に移行
+                in_end_column_label_cell = True
+            else :
+              # 空セルの間endを移動
+              end_cell = cell
           else:
-            # 次のテキストが見つかったら直前までを結合
-            newSheet.merge_cells(start_cell.coordinate + ":" + end_cell.coordinate)
-            # 探索リセット
+            # 無効セル探索、基本無視
             start_cell = end_cell = cell
+            if bool(cell.value):
+              # 次のテキストが見つかったら通常探索に移行
+              in_end_column_label_cell = False
+
         # 終点処理
         newSheet.merge_cells(start_cell.coordinate + ":" + end_cell.coordinate)
 
