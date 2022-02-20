@@ -7,24 +7,18 @@ import openpyxl
 input_dir = "input_files"
 output_dir = 'output_files'
 LF = "\n"
-TAB = "  "
-LIST = "- "
-# NOTE: xmind書き込みの際にメソッドが別れているので区別できるように
-SHEET = "# "
-ROOTTOPIK = "## "
 
 def escape_crlf(str):
   return str.replace( '\n' , '\\n').replace('\r', '')
 
-def sub_topic_recursive_processing(output_file , sub_topic, index = 0):
-  output_file.write(TAB * index + LIST + escape_crlf(sub_topic.getTitle()) + LF)
+def sub_topic_recursive_processing(current_sheet , sub_topic, current_row, current_column = 1):
+  current_sheet.cell(current_row, current_column).value = escape_crlf(sub_topic.getTitle())
   sub_topics = sub_topic.getSubTopics() or []
   for sub_topic in sub_topics:
-    sub_topic_recursive_processing(output_file, sub_topic, index+1)
+    sub_topic_recursive_processing(current_sheet, sub_topic, current_row, current_column+1)
+    current_row+=1
 
 if __name__ == '__main__':
-  # wb = openpyxl.Workbook()
-  # wb.save('sample.xlsx')
   args = sys.argv
   for index, arg in enumerate(args):
     if index == 1: input_dir = arg
@@ -51,13 +45,13 @@ if __name__ == '__main__':
     sheets = workbook.getSheets()
     for sheet in sheets:
       newSheet = wb.create_sheet(title=escape_crlf(sheet.getTitle()))
-      # f.write(SHEET + escape_crlf(sheet.getTitle()) + LF)
       rt = sheet.getRootTopic()
       newSheet.cell(1,1).value = escape_crlf(rt.getTitle())
-      # f.write(ROOTTOPIK + escape_crlf(rt.getTitle()) + LF)
-      # sub_topics = rt.getSubTopics() or []
-      # for sub_topic in sub_topics:
-      #   sub_topic_recursive_processing(f, sub_topic)
+      sub_topics = rt.getSubTopics() or []
+      current_row = 3
+      for sub_topic in sub_topics:
+        sub_topic_recursive_processing(newSheet, sub_topic, current_row)
+        current_row+=1
 
     # 上書き保存
     wb.save(output_file_path)
