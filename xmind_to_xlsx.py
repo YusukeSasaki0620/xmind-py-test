@@ -3,9 +3,11 @@
 import glob,os,codecs,sys
 import xmind
 import openpyxl
+from openpyxl.styles import PatternFill
 
 input_dir = "input_files"
 output_dir = 'output_files'
+END_COLUM_LABEL = PatternFill(patternType='solid', fgColor='d3d3d3')
 
 
 def sub_topic_recursive_processing(current_sheet , sub_topic, max_column_num, current_row, current_column = 1):
@@ -17,8 +19,12 @@ def sub_topic_recursive_processing(current_sheet , sub_topic, max_column_num, cu
     # 深さ優先探索の再起なので、呼び出すたびにcolunm増
     current_row, max_column_num = sub_topic_recursive_processing(current_sheet, sub_topic, max_column_num, current_row, current_column + 1)
 
-  # 終了条件：末端に来たときのみrow増加
-  return current_row + (not bool(sub_topics)), max_column_num if max_column_num > current_column else current_column
+  # 終了条件：末端に来たときのみrow増加、整形用ラベルも付与
+  if not bool(sub_topics):
+    current_sheet.cell(current_row, current_column + 1).fill = END_COLUM_LABEL
+    current_row += 1
+
+  return current_row, max_column_num if max_column_num > current_column else current_column
 
 if __name__ == '__main__':
   args = sys.argv
@@ -64,5 +70,24 @@ if __name__ == '__main__':
 
       # カウント確認
       newSheet.cell(current_row,max_column_num).value = 'カウント確認'
+
+
+      # ２行目ラベル出力
+      for i in range(max_column_num):
+        tmp_row = i+1
+        newSheet.cell(2, tmp_row).value = "Level " + str(tmp_row)
+
+      # 整形処理① 末尾処理
+      for row in newSheet.iter_rows(3, current_row - 1, 1, max_column_num + 1):
+        find_end = False
+        for cell in row:
+          if find_end:
+            cell.fill = END_COLUM_LABEL
+          if cell.fill == END_COLUM_LABEL:
+            find_end = True
+
+
+
+
     # 上書き保存
     wb.save(output_file_path)
