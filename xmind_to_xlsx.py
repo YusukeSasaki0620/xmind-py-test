@@ -8,17 +8,17 @@ input_dir = "input_files"
 output_dir = 'output_files'
 
 
-def sub_topic_recursive_processing(current_sheet , sub_topic, current_row, current_column = 1):
+def sub_topic_recursive_processing(current_sheet , sub_topic, max_column_num, current_row, current_column = 1):
   # セル書き込み
   current_sheet.cell(current_row, current_column).value = sub_topic.getTitle()
   sub_topics = sub_topic.getSubTopics() or []
 
   for sub_topic in sub_topics:
     # 深さ優先探索の再起なので、呼び出すたびにcolunm増
-    current_row = sub_topic_recursive_processing(current_sheet, sub_topic, current_row, current_column + 1)
+    current_row, max_column_num = sub_topic_recursive_processing(current_sheet, sub_topic, max_column_num, current_row, current_column + 1)
 
   # 終了条件：末端に来たときのみrow増加
-  return current_row + (not bool(sub_topics))
+  return current_row + (not bool(sub_topics)), max_column_num if max_column_num > current_column else current_column
 
 if __name__ == '__main__':
   args = sys.argv
@@ -55,10 +55,14 @@ if __name__ == '__main__':
       newSheet.cell(1,1).value = rt.getTitle()
 
       current_row = 3 # ２行目は固定出力なので一旦飛ばす
+      max_column_num = 0
 
       sub_topics = rt.getSubTopics() or []
       # サブトピックを再帰処理
       for sub_topic in sub_topics:
-        current_row = sub_topic_recursive_processing(newSheet, sub_topic, current_row)
+        current_row, max_column_num = sub_topic_recursive_processing(newSheet, sub_topic, max_column_num, current_row)
+
+      # カウント確認
+      newSheet.cell(current_row,max_column_num).value = 'カウント確認'
     # 上書き保存
     wb.save(output_file_path)
