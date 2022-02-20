@@ -4,15 +4,19 @@ import glob,os,sys
 import xmind
 import openpyxl
 from openpyxl.styles import PatternFill
+from openpyxl.styles.alignment import Alignment
 
 input_dir = "input_files"
 output_dir = 'output_files'
 END_COLUM_LABEL = PatternFill(patternType='solid', fgColor='d3d3d3')
-
+SELL_DEFAULT_ALIGNMENT = Alignment(vertical = 'center')
 
 def sub_topic_recursive_processing(current_sheet , sub_topic, max_column_num, current_row, current_column = 1):
   # セル書き込み
-  current_sheet.cell(current_row, current_column).value = sub_topic.getTitle()
+  current_cell = current_sheet.cell(current_row, current_column)
+  current_cell.value = sub_topic.getTitle()
+  current_cell.alignment = SELL_DEFAULT_ALIGNMENT
+
   sub_topics = sub_topic.getSubTopics() or []
 
   for sub_topic in sub_topics:
